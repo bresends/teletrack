@@ -1,0 +1,30 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "dev": "bun --watch src/index.ts",
+    "lint": "bun x @biomejs/biome check src",
+    "lint:fix": "bun run lint --fix",
+    "generate": "bun x drizzle-kit generate",
+    "push": "bun x drizzle-kit push",
+    "migrate": "bun x drizzle-kit migrate",
+    "studio": "bun x drizzle-kit studio"
+  },
+  "dependencies": {
+    "gramio": "^0.2.0",
+    "env-var": "^7.5.0",
+    "drizzle-orm": "^0.38.2",
+    "pg": "^8.13.1",
+    "@gramio/prompt": "^1.1.4",
+    "elysia": "^1.1.26"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@flydotio/dockerfile": "^0.7.8",
+    "@types/bun": "^1.1.14",
+    "@types/pg": "^8.11.10",
+    "drizzle-kit": "^0.30.1",
+    "typescript": "^5.7.2"
+  }
+}

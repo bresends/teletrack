@@ -12,12 +12,13 @@
     "studio": "bun x drizzle-kit studio"
   },
   "dependencies": {
-    "gramio": "^0.2.0",
-    "env-var": "^7.5.0",
-    "drizzle-orm": "^0.38.2",
-    "pg": "^8.13.1",
+    "@elysiajs/cron": "^1.2.0",
     "@gramio/prompt": "^1.1.4",
-    "elysia": "^1.1.26"
+    "drizzle-orm": "^0.38.2",
+    "elysia": "^1.1.26",
+    "env-var": "^7.5.0",
+    "gramio": "^0.2.0",
+    "pg": "^8.13.1"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",

@@ -27,16 +27,16 @@ export async function checkAndSendDueReminders() {
 			.from(habitSchedules)
 			.innerJoin(habits, eq(habitSchedules.habitId, habits.id))
 			.innerJoin(users, eq(habits.userId, users.id))
-			.where(lte(habitSchedules.nextReminder, currentTime));
+			.where(
+				and(
+					lte(habitSchedules.nextReminder, currentTime),
+					eq(habitSchedules.isActive, true),
+				),
+			);
 
 		console.log(`Found ${dueReminders.length} reminders due`);
 
 		for (const reminder of dueReminders) {
-			// Skip inactive reminders
-			if (!reminder.isActive) {
-				console.log(`Skipping inactive reminder for habit ${reminder.habitId}`);
-				continue;
-			}
 			// Check if this habit has already been completed today
 			const hasCompletedToday = await checkHabitCompletedToday(
 				reminder.habitId,

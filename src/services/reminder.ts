@@ -1,7 +1,7 @@
-import { eq, lte } from "drizzle-orm";
+import { and, eq, gte, lte } from "drizzle-orm";
 import { bot } from "../bot.ts";
 import { db } from "../db/index.ts";
-import { habitSchedules, habits, users } from "../db/schema.ts";
+import { habitLogs, habitSchedules, habits, users } from "../db/schema.ts";
 
 export async function checkAndSendDueReminders() {
 	try {
@@ -22,7 +22,7 @@ export async function checkAndSendDueReminders() {
 				endTime: habitSchedules.endTime,
 				reminderInterval: habitSchedules.reminderInterval,
 				chatId: users.chatId,
-				firstName: users.firstName,
+				isActive: habitSchedules.isActive,
 			})
 			.from(habitSchedules)
 			.innerJoin(habits, eq(habitSchedules.habitId, habits.id))
@@ -32,8 +32,29 @@ export async function checkAndSendDueReminders() {
 		console.log(`Found ${dueReminders.length} reminders due`);
 
 		for (const reminder of dueReminders) {
-			await sendReminderNotification(reminder);
-			await updateNextReminderTime(reminder);
+			// Skip inactive reminders
+			if (!reminder.isActive) {
+				console.log(`Skipping inactive reminder for habit ${reminder.habitId}`);
+				continue;
+			}
+			// Check if this habit has already been completed today
+			const hasCompletedToday = await checkHabitCompletedToday(
+				reminder.habitId,
+			);
+
+			if (hasCompletedToday) {
+				console.log(
+					`Habit ${reminder.habitId} already completed today, scheduling for next occurrence`,
+				);
+				// Skip today's reminders and schedule for next occurrence
+				await updateNextReminderTime(reminder, true);
+			} else {
+				// Send reminder and update for next reminder time
+				setTimeout(async () => {
+					await sendReminderNotification(reminder);
+					await updateNextReminderTime(reminder, false);
+				}, 1000);
+			}
 		}
 
 		return dueReminders.length;
@@ -41,6 +62,41 @@ export async function checkAndSendDueReminders() {
 		console.error("Error checking reminders:", error);
 		return 0;
 	}
+}
+
+// Check if a habit has been completed today
+async function checkHabitCompletedToday(habitId: number): Promise<boolean> {
+	// Get start and end of today
+	const today = new Date();
+	const startOfDay = new Date(
+		today.getFullYear(),
+		today.getMonth(),
+		today.getDate(),
+	);
+	const endOfDay = new Date(
+		today.getFullYear(),
+		today.getMonth(),
+		today.getDate(),
+		23,
+		59,
+		59,
+		999,
+	);
+
+	// Query for completed habit logs for today
+	const completedLogs = await db
+		.select()
+		.from(habitLogs)
+		.where(
+			and(
+				eq(habitLogs.habitId, habitId),
+				eq(habitLogs.done, true),
+				gte(habitLogs.createdAt, startOfDay),
+				lte(habitLogs.createdAt, endOfDay),
+			),
+		);
+
+	return completedLogs.length > 0;
 }
 
 async function sendReminderNotification(reminder: {
@@ -57,19 +113,23 @@ async function sendReminderNotification(reminder: {
 	}
 }
 
-async function updateNextReminderTime(reminder: {
-	habitId: number;
-	scheduleType: "fixed" | "interval";
-	frequency: "daily" | "weekly" | "monthly" | "yearly" | null;
-	daysOfWeek: number[] | null;
-	dayOfMonth: number | null;
-	intervalValue: number | null;
-	intervalUnit: "days" | "weeks" | "months" | null;
-	startTime: string;
-	endTime: string;
-	reminderInterval: number;
-	nextReminder: Date | null;
-}) {
+// Updated to accept skipToNextOccurrence parameter
+async function updateNextReminderTime(
+	reminder: {
+		habitId: number;
+		scheduleType: "fixed" | "interval";
+		frequency: "daily" | "weekly" | "monthly" | "yearly" | null;
+		daysOfWeek: number[] | null;
+		dayOfMonth: number | null;
+		intervalValue: number | null;
+		intervalUnit: "days" | "weeks" | "months" | null;
+		startTime: string;
+		endTime: string;
+		reminderInterval: number;
+		nextReminder: Date | null;
+	},
+	skipToNextOccurrence = false,
+) {
 	try {
 		const baseDate = reminder.nextReminder || new Date();
 		const currentTime = new Date();
@@ -77,15 +137,15 @@ async function updateNextReminderTime(reminder: {
 		const nextTimeSameDay = new Date(currentTime.getTime() + intervalMs);
 
 		// Check if still within today's time window
-		const sameDayStart = combineDateAndTime(baseDate, reminder.startTime);
 		const sameDayEnd = combineDateAndTime(baseDate, reminder.endTime);
 
 		let nextReminderDate: Date;
 
-		if (nextTimeSameDay <= sameDayEnd) {
+		if (!skipToNextOccurrence && nextTimeSameDay <= sameDayEnd) {
+			// Continue with same-day reminders only if not skipping and still within time window
 			nextReminderDate = nextTimeSameDay;
 		} else {
-			// Calculate next occurrence
+			// Calculate next occurrence (next day, week, etc.)
 			const nextDate = getNextOccurrence({
 				scheduleType: reminder.scheduleType,
 				frequency: reminder.frequency,
@@ -103,8 +163,11 @@ async function updateNextReminderTime(reminder: {
 			.update(habitSchedules)
 			.set({ nextReminder: nextReminderDate })
 			.where(eq(habitSchedules.habitId, reminder.habitId));
+
+		return nextReminderDate;
 	} catch (error) {
 		console.error("Failed to update reminder:", error);
+		throw error;
 	}
 }
 

@@ -1,9 +1,9 @@
 import {
 	boolean,
 	integer,
-	interval,
 	pgTable,
 	serial,
+	time,
 	timestamp,
 	varchar,
 } from "drizzle-orm/pg-core";
@@ -44,10 +44,32 @@ export const habitSchedules = pgTable("habit_schedules", {
 	habitId: integer("habit_id")
 		.notNull()
 		.references(() => habits.id, { onDelete: "cascade" }),
-	recurrence: varchar("recurrence"),
-	interval: interval("interval"),
-	startAt: timestamp("start_at"),
+
+	scheduleType: varchar("schedule_type", {
+		enum: ["fixed", "interval"],
+	}).notNull(),
+
+	// For fixed schedules (daily/weekly/monthly)
+	frequency: varchar("frequency", {
+		enum: ["daily", "weekly", "monthly", "yearly"],
+	}),
+	daysOfWeek: integer("days_of_week").array(), // [0-6] for weekly
+	dayOfMonth: integer("day_of_month"), // 1-31
+
+	// For interval-based schedules
+	intervalValue: integer("interval_value"), // e.g., 4
+	intervalUnit: varchar("interval_unit", {
+		enum: ["days", "weeks", "months"],
+	}),
+
+	// Time window configuration
+	startTime: time("start_time").notNull(),
+	endTime: time("end_time").notNull(),
+	reminderInterval: integer("reminder_interval").notNull(), // Minutes between reminders
+
+	// Tracking
 	nextReminder: timestamp("next_reminder"),
+	isActive: boolean("is_active").default(true),
 });
 
 // Drop this table

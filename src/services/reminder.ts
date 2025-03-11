@@ -1,7 +1,7 @@
 import { and, eq, gte, lte } from "drizzle-orm";
-import { bot } from "../bot.ts";
 import { db } from "../db/index.ts";
 import { habitLogs, habitSchedules, habits, users } from "../db/schema.ts";
+import { sendReminderNotification } from "./messages/sendReminderNotification.ts";
 
 export async function checkAndSendDueReminders() {
 	try {
@@ -51,7 +51,11 @@ export async function checkAndSendDueReminders() {
 			} else {
 				// Send reminder and update for next reminder time
 				setTimeout(async () => {
-					await sendReminderNotification(reminder);
+					await sendReminderNotification({
+						habitName: reminder.habitName || "",
+						chatId: reminder.chatId,
+						messageTemplate: "Reminder: {{habitName}}",
+					});
 					await updateNextReminderTime(reminder, false);
 				}, 1000);
 			}
@@ -97,20 +101,6 @@ async function checkHabitCompletedToday(habitId: number): Promise<boolean> {
 		);
 
 	return completedLogs.length > 0;
-}
-
-async function sendReminderNotification(reminder: {
-	habitName: string | null;
-	chatId: string;
-}) {
-	try {
-		await bot.api.sendMessage({
-			chat_id: reminder.chatId,
-			text: `Reminder: Time for "${reminder.habitName}"!`,
-		});
-	} catch (error) {
-		console.error("Failed to send reminder:", error);
-	}
 }
 
 // Updated to accept skipToNextOccurrence parameter

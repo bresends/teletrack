@@ -28,6 +28,7 @@ export const habits = pgTable("habits", {
 		.defaultNow()
 		.notNull(),
 	name: varchar("name"),
+	reminderMessage: varchar("reminder_message"),
 });
 
 export const habitLogs = pgTable("habit_logs", {
@@ -69,6 +70,7 @@ export const habitSchedules = pgTable("habit_schedules", {
 
 	// Tracking
 	nextReminder: timestamp("next_reminder"),
+	lastReminder: timestamp("last_reminder"),
 	isActive: boolean("is_active").default(true),
 });
 

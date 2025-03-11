@@ -1,12 +1,12 @@
 import type {
 	ReminderMessageContext,
 	ReminderMessageStrategy,
-} from "../../contracts/ReminderMessageStrategy";
+} from "../strategies/ReminderMessageStrategy";
 
-export class TimeToCompleteReminderMessage implements ReminderMessageStrategy {
+export class StreakReminderMessage implements ReminderMessageStrategy {
 	buildMessage(context: ReminderMessageContext): string {
 		return context.messageTemplate
 			.replace(/{{habitName}}/g, context.habitName)
-			.replace(/{timeToComplete}/g, context.timeToComplete?.toString() || "0");
+			.replace(/{{streak}}/g, context.streak?.toString() || "0");
 	}
 }

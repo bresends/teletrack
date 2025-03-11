@@ -1,7 +1,7 @@
 import { and, eq, gte, lte } from "drizzle-orm";
-import { db } from "../db/index.ts";
-import { habitLogs, habitSchedules, habits, users } from "../db/schema.ts";
-import { sendReminderNotification } from "./messages/sendReminderNotification.ts";
+import { db } from "../../db/index.ts";
+import { habitLogs, habitSchedules, habits, users } from "../../db/schema.ts";
+import { sendReminderNotification } from "./sendReminderNotification.ts";
 
 export async function checkAndSendDueReminders() {
 	try {

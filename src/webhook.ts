@@ -3,7 +3,7 @@ import { Elysia } from "elysia";
 import { webhookHandler } from "gramio";
 import { bot } from "./bot.ts";
 import { config } from "./config.ts";
-import { checkAndSendDueReminders } from "./services/reminder.ts";
+import { checkAndSendDueReminders } from "./services/reminder/index.ts";
 
 export const app = new Elysia()
 	.use(

@@ -7,6 +7,6 @@ export class TimeToCompleteReminderMessage implements ReminderMessageStrategy {
 	buildMessage(context: ReminderMessageContext): string {
 		return context.messageTemplate
 			.replace(/{{habitName}}/g, context.habitName)
-			.replace(/{timeToComplete}/g, context.timeToComplete?.toString() || "0");
+			.replace(/{{timeToComplete}}/g, context.timeToComplete?.toString() || "0");
 	}
 }

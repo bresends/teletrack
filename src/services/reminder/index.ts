@@ -1,3 +1,4 @@
+import { calculateHabitStreak } from "../habit/calculateHabitStreak.ts";
 import { checkHabitCompletedToday } from "./checkHabitCompletedToday.ts";
 import { fetchDueReminders } from "./fetchDueReminders.ts";
 import { sendReminderNotification } from "./sendReminderNotification.ts";
@@ -14,6 +15,8 @@ export async function checkAndSendDueReminders() {
 				reminder.habitId,
 			);
 
+			const streakInfo = await calculateHabitStreak(reminder.habitId);
+
 			if (hasCompletedToday) {
 				console.log(
 					`Habit ${reminder.habitId} already completed today, scheduling for next occurrence`,
@@ -26,7 +29,11 @@ export async function checkAndSendDueReminders() {
 					await sendReminderNotification({
 						habitName: reminder.habitName || "",
 						chatId: reminder.chatId,
-						messageTemplate: "Reminder: {{habitName}}",
+						messageTemplate: reminder.habitMessage || "",
+						strategy: reminder.endDate ? "timeToComplete" : "default",
+						endDate: reminder.endDate || undefined,
+						currentStreak: streakInfo.currentStreak,
+						longestStreak: streakInfo.longestStreak,
 					});
 					await updateNextReminderTime(reminder, false);
 				}, 1000);

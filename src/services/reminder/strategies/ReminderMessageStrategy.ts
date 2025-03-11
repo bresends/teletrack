@@ -1,7 +1,8 @@
 export interface ReminderMessageContext {
     habitName: string;
     messageTemplate: string;
-    streak?: number;
+    currentStreak?: number;
+    longestStreak?: number;
     timeToComplete?: number;
 }
 

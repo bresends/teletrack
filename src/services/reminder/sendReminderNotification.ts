@@ -6,15 +6,17 @@ export async function sendReminderNotification(reminder: {
 	chatId: string;
 	messageTemplate: string;
 	strategy?: "default" | "streak" | "timeToComplete";
-	streak?: number;
-	timeToComplete?: number;
+	currentStreak?: number;
+	longestStreak?: number;
+	endDate?: Date;
 }) {
 	try {
 		const context = {
 			habitName: reminder.habitName,
 			messageTemplate: reminder.messageTemplate,
-			streak: reminder.streak,
-			timeToComplete: reminder.timeToComplete,
+			currentStreak: reminder.currentStreak,
+			longestStreak: reminder.longestStreak,	
+			endDate: reminder.endDate,
 		};
 
 		const strategy = createReminderMessage(reminder.strategy);

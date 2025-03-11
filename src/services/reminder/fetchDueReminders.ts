@@ -9,6 +9,7 @@ export async function fetchDueReminders() {
 			.select({
 				habitId: habitSchedules.habitId,
 				habitName: habits.name,
+				habitMessage: habits.reminderMessage,
 				nextReminder: habitSchedules.nextReminder,
 				scheduleType: habitSchedules.scheduleType,
 				frequency: habitSchedules.frequency,
@@ -21,6 +22,7 @@ export async function fetchDueReminders() {
 				reminderInterval: habitSchedules.reminderInterval,
 				chatId: users.chatId,
 				isActive: habitSchedules.isActive,
+				endDate: habitSchedules.lastReminder,
 			})
 			.from(habitSchedules)
 			.innerJoin(habits, eq(habitSchedules.habitId, habits.id))

@@ -1,9 +1,9 @@
 import { prompt } from "@gramio/prompt";
 import { eq } from "drizzle-orm";
 import { Bot } from "gramio";
-import { db } from "./db/index.ts";
-import { users } from "./db/schema.ts";
-import { config } from "./env.ts";
+import { db } from "../db/index.ts";
+import { users } from "../db/schema.ts";
+import { config } from "../env.ts";
 
 export const bot = new Bot(config.BOT_TOKEN)
 	.extend(prompt())

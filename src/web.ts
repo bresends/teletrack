@@ -1,10 +1,10 @@
 import { Patterns, cron } from "@elysiajs/cron";
 import { Elysia } from "elysia";
 import { webhookHandler } from "gramio";
-import { bot } from "./bot.ts";
-import { Producer } from "./queue/producer.ts";
-import { config } from "./env.ts";
 import { Consumer } from "queue/consumer.ts";
+import { bot } from "./telegram/bot.ts";
+import { config } from "./env.ts";
+import { Producer } from "./queue/producer.ts";
 
 const producer = new Producer();
 const consumer = new Consumer();

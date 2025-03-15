@@ -1,7 +1,7 @@
-import { bot } from "./bot.ts";
+import { app } from "./web.ts";
 import { client } from "./db/index.ts";
 import { config } from "./env.ts";
-import { app } from "./webhook.ts";
+import { bot } from "./telegram/bot.ts";
 const signals = ["SIGINT", "SIGTERM"];
 
 for (const signal of signals) {

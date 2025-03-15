@@ -1,6 +1,6 @@
 import { bot } from "./bot.ts";
-import { config } from "./config.ts";
 import { client } from "./db/index.ts";
+import { config } from "./env.ts";
 import { app } from "./webhook.ts";
 const signals = ["SIGINT", "SIGTERM"];
 
@@ -23,7 +23,9 @@ process.on("unhandledRejection", (error) => {
 
 await client.connect();
 console.log("🗄️ Database was connected!");
-app.listen(config.PORT, () => console.log(`Listening on port ${config.API_URL} ${config.PORT}`));
+app.listen(config.PORT, () =>
+	console.log(`Listening on port ${config.API_URL} ${config.PORT}`),
+);
 if (config.NODE_ENV === "production")
 	await bot.start({
 		webhook: {

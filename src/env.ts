@@ -13,4 +13,7 @@ export const config = {
 		.default(`https://${env.get("PUBLIC_DOMAIN").asString()}`)
 		.asString(),
 	DATABASE_URL: env.get("DATABASE_URL").required().asString(),
+	AMQP_URL: env.get("AMQP_URL").required().asString(),
+	AMQP_EXCHANGE_NAME: env.get("AMQP_EXCHANGE_NAME").required().asString(),
+	AMQP_QUEUE_NAME: env.get("AMQP_QUEUE_NAME").required().asString(),
 };

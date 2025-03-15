@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Client } from "pg";
-import { config } from "../config.ts";
+import { config } from "../env.ts";
 import * as schema from "./schema";
 
 export const client = new Client({
@@ -9,5 +9,5 @@ export const client = new Client({
 
 export const db = drizzle(client, {
 	casing: "snake_case",
-	schema
+	schema,
 });
